@@ -1,0 +1,28 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Distribus.Files", "src\Distribus.Files\Distribus.Files.csproj", "{FE6C396D-05EE-4F07-B084-A999D0F3FE67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Distribus.Packer", "src\Distribus.Packer\Distribus.Packer.csproj", "{30DF4BC1-9B47-4915-97B2-FCCB003F0AD3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Distribus.Client", "src\Distribus.Client\Distribus.Client.csproj", "{90BA9AFD-D4CF-4318-8DEF-CBC4DA435640}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE6C396D-05EE-4F07-B084-A999D0F3FE67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE6C396D-05EE-4F07-B084-A999D0F3FE67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE6C396D-05EE-4F07-B084-A999D0F3FE67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE6C396D-05EE-4F07-B084-A999D0F3FE67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30DF4BC1-9B47-4915-97B2-FCCB003F0AD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30DF4BC1-9B47-4915-97B2-FCCB003F0AD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30DF4BC1-9B47-4915-97B2-FCCB003F0AD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30DF4BC1-9B47-4915-97B2-FCCB003F0AD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90BA9AFD-D4CF-4318-8DEF-CBC4DA435640}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90BA9AFD-D4CF-4318-8DEF-CBC4DA435640}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90BA9AFD-D4CF-4318-8DEF-CBC4DA435640}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90BA9AFD-D4CF-4318-8DEF-CBC4DA435640}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Distribus.Client.MainWindow"
+        Title="Launcher"
+        WindowStartupLocation="CenterScreen"
+        Width="400" Height="70" CanResize="False"
+        Loaded="Window_OnLoaded">
+    <Border Padding="25,20">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,Auto" ShowGridLines="False">
+            <TextBlock Grid.Row="0" Grid.Column="0" Name="StatusLabel" Text="Preparing..." />
+            <TextBlock Grid.Row="0" Grid.Column="1" Name="DetailsLabel" Text="" />
+            <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="StatusProgress" IsIndeterminate="True" />
+        </Grid>
+    </Border>
+</Window>
