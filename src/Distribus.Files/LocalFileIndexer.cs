@@ -16,6 +16,11 @@ public class LocalFileIndexer : IFileIndexer
         _directory = new DirectoryInfo(path);
     }
 
+    private IEnumerable<FileInfo> EnumerateFiles()
+    {
+        return _directory.Exists ? _directory.EnumerateFiles("*", SearchOption.AllDirectories) : Enumerable.Empty<FileInfo>();
+    }
+
     private FileInfo ResolvePath(FileEntry fileEntry)
     {
         var ioPath = Path.Join(_directory.FullName, fileEntry.Path);
@@ -34,7 +39,7 @@ public class LocalFileIndexer : IFileIndexer
         var fileCache = new List<FileEntry>();
         var chunkCache = new List<FileEntryChunk>();
 
-        foreach (var fileInfo in _directory.EnumerateFiles("*", SearchOption.AllDirectories))
+        foreach (var fileInfo in EnumerateFiles())
         {
             var filePath = Path.GetRelativePath(_directory.FullName, fileInfo.FullName);
             if (filePath.Equals(IndexPath, StringComparison.Ordinal))
@@ -112,6 +117,14 @@ public class LocalFileIndexer : IFileIndexer
             remoteIndex.Length
         );
 
+        var localFiles = new Dictionary<string, FileInfo>();
+
+        foreach (var fileInfo in EnumerateFiles())
+        {
+            var filePath = Path.GetRelativePath(_directory.FullName, fileInfo.FullName);
+            localFiles.Add(filePath, fileInfo);
+        }
+
         foreach (var remoteEntry in remoteIndex.Files)
         {
             var ioFile = ResolvePath(remoteEntry);
@@ -173,6 +186,13 @@ public class LocalFileIndexer : IFileIndexer
                     progress.Report(stats);
                 }
             }
+
+            localFiles.Remove(remoteEntry.Path);
+        }
+
+        foreach (var (_, fileInfo) in localFiles)
+        {
+            fileInfo.Delete();
         }
 
         stats.Status = string.Empty;
