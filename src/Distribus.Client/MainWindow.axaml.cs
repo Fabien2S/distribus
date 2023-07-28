@@ -5,7 +5,7 @@ using Distribus.Files;
 
 namespace Distribus.Client;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
 {
     private readonly LocalFileIndexer _localFileIndexer;
     private readonly RemoteFileIndexer _remoteFileIndexer;
@@ -22,69 +22,59 @@ public partial class MainWindow : Window
     {
         try
         {
-            await _localFileIndexer.DownloadFilesAsync(_remoteFileIndexer, UpdateStatus);
-
-            // var totalBytes = fileIndex.Length;
-            // var processBytes = 0L;
-            //
-            // foreach (var fileInfo in fileIndex.Files)
-            // {
-            //     var fileName = Path.GetFileName(fileInfo.Path);
-            //     UpdateStatus(fileName, processBytes);
-            //
-            //     var chunkStartIdx = -1;
-            //
-            //     var chunks = fileInfo.Chunks;
-            //     var ioChunks = await _localFileIndexer.RetrieveChunksAsync(fileInfo);
-            //     for (var chunkIdx = 0; chunkIdx < chunks.Length; chunkIdx++)
-            //     {
-            //         var chunk = chunks[chunkIdx];
-            //         var chunkIsValid = chunkIdx < ioChunks.Length && chunk == ioChunks[chunkIdx];
-            //
-            //         if (!chunkIsValid)
-            //         {
-            //             if (chunkStartIdx == -1)
-            //             {
-            //                 chunkStartIdx = chunkIdx;
-            //             }
-            //         }
-            //         else if (chunkStartIdx != -1)
-            //         {
-            //             var chunkEndIdx = chunkIdx - 1;
-            //
-            //             await _remoteFileIndexer.DownloadChunkAsync(fileInfo, chunkStartIdx..chunkEndIdx,);
-            //             // TODO Write content to local file
-            //             chunkStartIdx = -1;
-            //         }
-            //
-            //         processBytes += chunk.Size;
-            //         UpdateStatus($"{fileName}#{chunkIdx:0000}", processBytes);
-            //     }
-            //
-            //     // TODO Remove excessive data in io chunk
-            //     // ioChunk.Size - chunk.Size > 0
-            // }
-            //
-            //
-            // _state = State.DownloadingFiles;
-            // UpdateStatus("Done", processBytes);
+            await _localFileIndexer.SynchronizeFilesAsync(_remoteFileIndexer, this);
+            StatusLabel.Text = "Done.";
         }
         catch (Exception ex)
         {
-            UpdateStatus(ex.Message, 0, 0);
+            StatusLabel.Text = ex.Message;
+
+            DetailsLabel.IsVisible = false;
+            StatusProgress.IsIndeterminate = true;
+
             throw;
         }
     }
 
-    private void UpdateStatus(string status, long downloadedBytes, long totalBytes)
+    public void Report(FileIndexerStatistics stats)
     {
-        StatusLabel.Text = status;
+        StatusLabel.Text = stats.Status;
 
-        var ratio = (double)downloadedBytes / totalBytes;
-        DetailsLabel.Text = ratio.ToString("P0");
-        DetailsLabel.IsVisible = double.IsFinite(ratio);
-        StatusProgress.Value = downloadedBytes;
-        StatusProgress.Maximum = totalBytes;
-        StatusProgress.IsIndeterminate = double.IsNaN(ratio);
+        var progress = (double)stats.DownloadedBytes / stats.TotalBytes;
+        var hasProgress = double.IsFinite(progress);
+
+        PercentLabel.IsVisible = hasProgress;
+        PercentLabel.Text = progress.ToString("P1");
+
+        DetailsLabel.IsVisible = hasProgress;
+        DetailsLabel.Text = $"{FormatBytes(stats.DownloadedBytes)} / {FormatBytes(stats.TotalBytes)}";
+
+        StatusProgress.IsIndeterminate = !hasProgress;
+        StatusProgress.Value = stats.DownloadedBytes;
+        StatusProgress.Maximum = stats.TotalBytes;
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        var units = new[]
+        {
+            ("PB", 1_000_000_000_000_000L),
+            ("TB", 1_000_000_000_000L),
+            ("GB", 1_000_000_000L),
+            ("MB", 1_000_000L),
+            ("KB", 1_000L),
+        };
+
+        foreach (var (suffix, unit) in units)
+        {
+            if (bytes < unit)
+            {
+                continue;
+            }
+
+            return $"{(double)bytes / unit:F1} {suffix}";
+        }
+
+        return bytes.ToString("F1");
     }
 }

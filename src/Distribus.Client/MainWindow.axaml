@@ -6,13 +6,16 @@
         x:Class="Distribus.Client.MainWindow"
         Title="Launcher"
         WindowStartupLocation="CenterScreen"
-        Width="400" Height="70" CanResize="False"
+        Width="500" Height="100" CanResize="False"
         Loaded="Window_OnLoaded">
     <Border Padding="25,20">
-        <Grid ColumnDefinitions="*,Auto" RowDefinitions="*,Auto" ShowGridLines="False">
-            <TextBlock Grid.Row="0" Grid.Column="0" Name="StatusLabel" Text="Preparing..." />
-            <TextBlock Grid.Row="0" Grid.Column="1" Name="DetailsLabel" Text="" />
-            <ProgressBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="StatusProgress" IsIndeterminate="True" />
-        </Grid>
+        <StackPanel Spacing="10">
+            <TextBlock Name="StatusLabel" Text="Preparing..." />
+            <ProgressBar Name="StatusProgress" IsIndeterminate="True" />
+            <UniformGrid Columns="2">
+                <TextBlock Name="PercentLabel" Text="" TextAlignment="Left" />
+                <TextBlock Name="DetailsLabel" Text="" TextAlignment="Right" />
+            </UniformGrid>
+        </StackPanel>
     </Border>
 </Window>
