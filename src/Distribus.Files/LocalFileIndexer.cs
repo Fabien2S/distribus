@@ -4,7 +4,7 @@ namespace Distribus.Files;
 
 public class LocalFileIndexer : IFileIndexer
 {
-    private const string IndexPath = "index.json";
+    public const string IndexPath = "index.json";
     private static readonly byte[] ChunkBuffer = new byte[FileEntryChunk.MaxSize];
 
     private readonly DirectoryInfo _directory;
@@ -67,7 +67,7 @@ public class LocalFileIndexer : IFileIndexer
         );
     }
 
-    public async Task<Stream> DownloadChunkAsync(FileEntry fileEntry, Range chunkRange)
+    public async Task<Stream> RequestChunkRangeAsync(FileEntry fileEntry, Range chunkRange)
     {
         var ioFile = ResolvePath(fileEntry);
         var (byteOffset, byteLength) = FileEntryChunk.GetByteOffsetAndLength(fileEntry.Chunks, chunkRange);
@@ -86,18 +86,21 @@ public class LocalFileIndexer : IFileIndexer
         return new MemoryStream(ioBuffer, false);
     }
 
-    public async Task SerializeIndexAsync()
-    {
-        await using var fileStream = new FileStream(IndexPath, FileMode.Create, FileAccess.Write);
-        await SerializeIndexAsync(fileStream);
-    }
-
+    /// <summary>
+    ///     Serializes the index to the given <see cref="Stream"/>.
+    /// </summary>
+    /// <param name="destination">The destination <see cref="Stream"/>.</param>
     public async Task SerializeIndexAsync(Stream destination)
     {
         var fileIndex = await RetrieveIndexAsync();
         await JsonSerializer.SerializeAsync(destination, fileIndex, FileIndexerSerializerContext.Default.FileIndex);
     }
 
+    /// <summary>
+    ///     Synchronizes local files to the <see cref="sourceIndexer"/>.
+    /// </summary>
+    /// <param name="sourceIndexer">The source indexer.</param>
+    /// <param name="progress">The progress.</param>
     public async Task SynchronizeFilesAsync(IFileIndexer sourceIndexer, IProgress<FileIndexerStatistics> progress)
     {
         var remoteIndex = await sourceIndexer.RetrieveIndexAsync();
@@ -149,7 +152,7 @@ public class LocalFileIndexer : IFileIndexer
 
                 var dlRange = rangeStart..rangeEnd;
                 Console.WriteLine($"Downloading chunk {dlRange.GetOffsetAndLength(chunkCount)} for '{remoteEntry.Path}'");
-                await using var sourceStream = await sourceIndexer.DownloadChunkAsync(remoteEntry, dlRange);
+                await using var sourceStream = await sourceIndexer.RequestChunkRangeAsync(remoteEntry, dlRange);
                 ioStream.Seek((long)rangeStart * FileEntryChunk.MaxSize, SeekOrigin.Begin);
 
                 const int blockSize = 8192;

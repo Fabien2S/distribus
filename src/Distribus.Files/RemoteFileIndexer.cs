@@ -30,7 +30,7 @@ public class RemoteFileIndexer : IFileIndexer
         return fileIndex ?? throw new FormatException("Failed to deserialize file index");
     }
 
-    public async Task<Stream> DownloadChunkAsync(FileEntry fileEntry, Range chunkRange)
+    public async Task<Stream> RequestChunkRangeAsync(FileEntry fileEntry, Range chunkRange)
     {
         ArgumentNullException.ThrowIfNull(fileEntry);
 
