@@ -23,16 +23,13 @@ public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
         try
         {
             await _localFileIndexer.SynchronizeFilesAsync(_remoteFileIndexer, this);
-            StatusLabel.Text = "Done.";
+            StatusLabel.Text = "Ready to launch";
         }
         catch (Exception ex)
         {
-            StatusLabel.Text = ex.Message;
-
-            DetailsLabel.IsVisible = false;
-            StatusProgress.IsIndeterminate = true;
-
-            throw;
+            Report(new FileIndexerStatistics(
+                ex.Message, false, 0L, 0L
+            ));
         }
     }
 
@@ -40,41 +37,27 @@ public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
     {
         StatusLabel.Text = stats.Status;
 
-        var progress = (double)stats.DownloadedBytes / stats.TotalBytes;
-        var hasProgress = double.IsFinite(progress);
+        if (stats.IsDownloading)
+        {
+            ButtonPanel.IsVisible = false;
+            DownloadPanel.IsVisible = true;
+            DownloadProgress.IsIndeterminate = false;
 
-        PercentLabel.IsVisible = hasProgress;
-        PercentLabel.Text = progress.ToString("P1");
+            PercentLabel.Text = ((double)stats.DownloadedBytes / stats.TotalBytes).ToString("P1");
+            DetailsLabel.Text = $"{BinaryFormatter.Format(stats.DownloadedBytes)} / {BinaryFormatter.Format(stats.TotalBytes)}";
 
-        DetailsLabel.IsVisible = hasProgress;
-        DetailsLabel.Text = $"{FormatBytes(stats.DownloadedBytes)} / {FormatBytes(stats.TotalBytes)}";
-
-        StatusProgress.IsIndeterminate = !hasProgress;
-        StatusProgress.Value = stats.DownloadedBytes;
-        StatusProgress.Maximum = stats.TotalBytes;
+            DownloadProgress.Value = stats.DownloadedBytes;
+            DownloadProgress.Maximum = stats.TotalBytes;
+        }
+        else
+        {
+            ButtonPanel.IsVisible = true;
+            DownloadPanel.IsVisible = false;
+        }
     }
 
-    private static string FormatBytes(long bytes)
+    private void ActionButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var units = new[]
-        {
-            ("PB", 1_000_000_000_000_000L),
-            ("TB", 1_000_000_000_000L),
-            ("GB", 1_000_000_000L),
-            ("MB", 1_000_000L),
-            ("KB", 1_000L),
-        };
-
-        foreach (var (suffix, unit) in units)
-        {
-            if (bytes < unit)
-            {
-                continue;
-            }
-
-            return $"{(double)bytes / unit:F1} {suffix}";
-        }
-
-        return bytes.ToString("F1");
+        Close();
     }
 }

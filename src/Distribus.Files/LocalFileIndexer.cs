@@ -107,6 +107,7 @@ public class LocalFileIndexer : IFileIndexer
 
         var stats = new FileIndexerStatistics(
             string.Empty,
+            true,
             0,
             remoteIndex.Length
         );
@@ -175,6 +176,7 @@ public class LocalFileIndexer : IFileIndexer
         }
 
         stats.Status = string.Empty;
+        stats.IsDownloading = false;
         stats.DownloadedBytes = stats.TotalBytes;
         progress.Report(stats);
     }
