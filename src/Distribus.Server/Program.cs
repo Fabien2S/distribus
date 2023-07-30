@@ -6,22 +6,19 @@ using Microsoft.Extensions.FileProviders.Physical;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-var app = builder.Build();
-
-const string dataPath = "data/";
-
-var fileIndexer = new LocalFileIndexer(dataPath);
-
-app.MapGet(LocalFileIndexer.IndexPath, async context =>
+builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    var fileIndex = await fileIndexer.RetrieveIndexAsync();
-    await context.Response.WriteAsJsonAsync(fileIndex, FileIndexerSerializerContext.Default.FileIndex);
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, FileIndexerSerializerContext.Default);
 });
 
+var app = builder.Build();
+var fileIndexer = new LocalFileIndexer(app.Environment.ContentRootPath);
+
+app.MapGet(LocalFileIndexer.IndexPath, async () => await fileIndexer.RetrieveIndexAsync());
 app.UseStaticFiles(new StaticFileOptions
 {
     RequestPath = PathString.Empty,
-    FileProvider = new PhysicalFileProvider(dataPath, ExclusionFilters.Sensitive),
+    FileProvider = new PhysicalFileProvider(fileIndexer.FullPath, ExclusionFilters.Sensitive),
     RedirectToAppendTrailingSlash = false,
     ContentTypeProvider = new DownloadContentTypeProvider(),
     ServeUnknownFileTypes = true,

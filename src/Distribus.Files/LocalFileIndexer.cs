@@ -7,6 +7,8 @@ public class LocalFileIndexer : IFileIndexer
     public const string IndexPath = "index.json";
     private static readonly byte[] ChunkBuffer = new byte[FileEntryChunk.MaxSize];
 
+    public string FullPath => _directory.FullName;
+    
     private readonly DirectoryInfo _directory;
 
     public LocalFileIndexer(string path)
