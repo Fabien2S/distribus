@@ -23,7 +23,7 @@ public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
         try
         {
             await _localFileIndexer.SynchronizeFilesAsync(_remoteFileIndexer, this);
-            StatusLabel.Text = "Ready to launch";
+            StatusLabel.Text = Client.Resources.LaunchingApplication;
         }
         catch (Exception ex)
         {

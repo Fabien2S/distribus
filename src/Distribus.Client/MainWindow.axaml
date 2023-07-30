@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:p="clr-namespace:Distribus.Client"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Distribus.Client.MainWindow"
         Title="Launcher"
@@ -10,7 +11,7 @@
         Loaded="Window_OnLoaded">
     <Border Padding="25,20">
         <StackPanel Spacing="10">
-            <TextBlock Name="StatusLabel" TextTrimming="CharacterEllipsis" Text="Preparing..." />
+            <TextBlock Name="StatusLabel" TextTrimming="CharacterEllipsis" Text="{x:Static p:Resources.CheckingUpdates}" />
             <StackPanel Name="DownloadPanel" Spacing="10">
                 <ProgressBar Name="DownloadProgress" IsIndeterminate="True" />
                 <UniformGrid Columns="2">
