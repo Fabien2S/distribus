@@ -11,6 +11,6 @@ namespace Distribus.Files;
     GenerationMode = JsonSourceGenerationMode.Default
 )]
 [JsonSerializable(typeof(FileIndex))]
-internal partial class FileIndexerSerializerContext : JsonSerializerContext
+public partial class FileIndexerSerializerContext : JsonSerializerContext
 {
 }
