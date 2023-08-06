@@ -2,13 +2,13 @@ using System.Text.Json;
 
 namespace Distribus.Files;
 
-public class LocalFileIndexer : IFileIndexer
+public class LocalFileIndexer : IFileIndexer, IFileSynchronizer
 {
     public const string IndexPath = "index.json";
     private static readonly byte[] ChunkBuffer = new byte[FileEntryChunk.MaxSize];
 
     public string FullPath => _directory.FullName;
-    
+
     private readonly DirectoryInfo _directory;
 
     public LocalFileIndexer(string path)
@@ -93,21 +93,6 @@ public class LocalFileIndexer : IFileIndexer
         return new MemoryStream(ioBuffer, false);
     }
 
-    /// <summary>
-    ///     Serializes the index to the given <see cref="Stream"/>.
-    /// </summary>
-    /// <param name="destination">The destination <see cref="Stream"/>.</param>
-    public async Task SerializeIndexAsync(Stream destination)
-    {
-        var fileIndex = await RetrieveIndexAsync();
-        await JsonSerializer.SerializeAsync(destination, fileIndex, FileIndexerSerializerContext.Default.FileIndex);
-    }
-
-    /// <summary>
-    ///     Synchronizes local files to the <see cref="sourceIndexer"/>.
-    /// </summary>
-    /// <param name="sourceIndexer">The source indexer.</param>
-    /// <param name="progress">The progress.</param>
     public async Task SynchronizeFilesAsync(IFileIndexer sourceIndexer, IProgress<FileIndexerStatistics> progress)
     {
         var remoteIndex = await sourceIndexer.RetrieveIndexAsync();
@@ -201,6 +186,16 @@ public class LocalFileIndexer : IFileIndexer
         stats.IsDownloading = false;
         stats.DownloadedBytes = stats.TotalBytes;
         progress.Report(stats);
+    }
+
+    /// <summary>
+    ///     Serializes the index to the given <see cref="Stream"/>.
+    /// </summary>
+    /// <param name="destination">The destination <see cref="Stream"/>.</param>
+    public async Task SerializeIndexAsync(Stream destination)
+    {
+        var fileIndex = await RetrieveIndexAsync();
+        await JsonSerializer.SerializeAsync(destination, fileIndex, FileIndexerSerializerContext.Default.FileIndex);
     }
 
     private static async Task<FileEntryChunk?> ReadChunkAsync(FileStream stream, int chunkIdx)

@@ -7,13 +7,13 @@ namespace Distribus.Client;
 
 public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
 {
-    private readonly LocalFileIndexer _localFileIndexer;
-    private readonly RemoteFileIndexer _remoteFileIndexer;
+    private readonly IFileIndexer _remoteFileIndexer;
+    private readonly IFileSynchronizer _localFileIndexer;
 
     public MainWindow()
     {
-        _localFileIndexer = new LocalFileIndexer("data/");
         _remoteFileIndexer = new RemoteFileIndexer("http://127.0.0.1:8000");
+        _localFileIndexer = new LocalFileIndexer("data/");
 
         InitializeComponent();
     }
