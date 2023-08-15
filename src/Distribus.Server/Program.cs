@@ -14,7 +14,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 var fileIndexer = new LocalFileIndexer(app.Environment.ContentRootPath);
 
-app.MapGet(LocalFileIndexer.IndexPath, async () => await fileIndexer.RetrieveIndexAsync());
+app.MapGet(IFileIndexer.IndexPath, async () => await fileIndexer.RetrieveIndexAsync());
 app.UseStaticFiles(new StaticFileOptions
 {
     RequestPath = PathString.Empty,

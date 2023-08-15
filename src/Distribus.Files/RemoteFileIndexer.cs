@@ -19,7 +19,7 @@ public class RemoteFileIndexer : IFileIndexer
 
     public async Task<FileIndex> RetrieveIndexAsync()
     {
-        var indexUri = new Uri(_baseUri, "index.json");
+        var indexUri = new Uri(_baseUri, IFileIndexer.IndexPath);
         var response = await Client.GetAsync(indexUri, HttpCompletionOption.ResponseHeadersRead);
 
         response.EnsureSuccessStatusCode();

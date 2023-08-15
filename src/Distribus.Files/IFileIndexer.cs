@@ -2,6 +2,8 @@ namespace Distribus.Files;
 
 public interface IFileIndexer
 {
+    public const string IndexPath = "index.json";
+
     /// <summary>
     ///     Retrieves the index from the indexer.
     /// </summary>
