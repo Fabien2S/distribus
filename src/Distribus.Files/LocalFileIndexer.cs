@@ -5,7 +5,12 @@ namespace Distribus.Files;
 public class LocalFileIndexer : IFileIndexer, IFileSynchronizer
 {
     public const string IndexPath = "index.json";
-    private static readonly byte[] ChunkBuffer = new byte[FileEntryChunk.MaxSize];
+    
+    private const int ChunkSize = 4 * 1024 * 1024;
+    private const int ChunkBlockSize = 8192;
+
+    private static readonly byte[] ChunkBuffer = new byte[ChunkSize];
+    private static readonly byte[] ChunkBlockBuffer = new byte[ChunkBlockSize];
 
     public string FullPath => _directory.FullName;
 
@@ -154,19 +159,17 @@ public class LocalFileIndexer : IFileIndexer, IFileSynchronizer
                 var dlRange = rangeStart..rangeEnd;
                 Console.WriteLine($"Downloading chunk {dlRange.GetOffsetAndLength(chunkCount)} for '{remoteEntry.Path}'");
                 await using var sourceStream = await sourceIndexer.RequestChunkRangeAsync(remoteEntry, dlRange);
-                ioStream.Seek((long)rangeStart * FileEntryChunk.MaxSize, SeekOrigin.Begin);
+                ioStream.Seek((long)rangeStart * ChunkSize, SeekOrigin.Begin);
 
-                const int blockSize = 8192;
-                var blockBuffer = new byte[blockSize];
                 while (true)
                 {
-                    var read = await sourceStream.ReadAsync(blockBuffer);
+                    var read = await sourceStream.ReadAsync(ChunkBlockBuffer);
                     if (read == 0)
                     {
                         break;
                     }
 
-                    var readMemory = blockBuffer.AsMemory(0, read);
+                    var readMemory = ChunkBlockBuffer.AsMemory(0, read);
                     await ioStream.WriteAsync(readMemory);
 
                     stats.DownloadedBytes += read;
@@ -200,14 +203,14 @@ public class LocalFileIndexer : IFileIndexer, IFileSynchronizer
 
     private static async Task<FileEntryChunk?> ReadChunkAsync(FileStream stream, int chunkIdx)
     {
-        var byteOffset = (long)chunkIdx * FileEntryChunk.MaxSize;
+        var byteOffset = (long)chunkIdx * ChunkSize;
         if (stream.Length < byteOffset)
         {
             return null;
         }
 
         stream.Seek(byteOffset, SeekOrigin.Begin);
-        var chunkSize = await stream.ReadAtLeastAsync(ChunkBuffer, FileEntryChunk.MaxSize, false);
+        var chunkSize = await stream.ReadAtLeastAsync(ChunkBuffer, ChunkSize, false);
 
         return chunkSize != 0 ? FileEntryChunk.FromContent(ChunkBuffer, chunkSize) : null;
     }

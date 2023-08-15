@@ -10,11 +10,6 @@ namespace Distribus.Files;
 public record FileEntryChunk(ulong Hash, int Size)
 {
     /// <summary>
-    ///     The maximum size of a chunk
-    /// </summary>
-    public const int MaxSize = 4 * 1024 * 1024;
-
-    /// <summary>
     ///     Creates a <see cref="FileEntryChunk"/> from a chunk's content.
     /// </summary>
     /// <param name="content">The content of the chunk.</param>
@@ -38,8 +33,13 @@ public record FileEntryChunk(ulong Hash, int Size)
     {
         var (offset, length) = range.GetOffsetAndLength(chunks.Length);
 
-        var byteOffset = (long)offset * MaxSize;
+        var byteOffset = 0L;
         var byteLength = 0L;
+
+        for (var i = 0; i < offset; i++)
+        {
+            byteOffset += chunks[i].Size;
+        }
 
         for (var i = 0; i < length; i++)
         {
