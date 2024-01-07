@@ -7,13 +7,16 @@ namespace Distribus.Client;
 
 public partial class MainWindow : Window, IProgress<FileIndexerStatistics>
 {
-    private readonly IFileIndexer _remoteFileIndexer;
-    private readonly IFileSynchronizer _localFileIndexer;
+    private readonly RemoteFileIndexer _remoteFileIndexer;
+    private readonly LocalFileIndexer _localFileIndexer;
 
     public MainWindow()
     {
-        _remoteFileIndexer = new RemoteFileIndexer("http://127.0.0.1:8000");
-        _localFileIndexer = new LocalFileIndexer("data/");
+        var remoteHost = Environment.GetEnvironmentVariable("APP_HOST") ?? throw new ArgumentException("Missing APP_HOST env");
+        var localPath = Environment.GetEnvironmentVariable("APP_PATH") ?? throw new ArgumentException("Missing APP_PATH env");
+
+        _remoteFileIndexer = new RemoteFileIndexer(remoteHost);
+        _localFileIndexer = new LocalFileIndexer(localPath);
 
         InitializeComponent();
     }
